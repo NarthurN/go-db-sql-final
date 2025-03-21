@@ -34,6 +34,7 @@ func TestAddGetDelete(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db")// настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
 	
@@ -48,10 +49,8 @@ func TestAddGetDelete(t *testing.T) {
 	insertedParcel, err := store.Get(lastInsertedId)
 	require.NoError(t, err)
 	assert.NotEmpty(t, insertedParcel.Number)
-	assert.Equal(t, parcel.Address, insertedParcel.Address)
-	assert.Equal(t, parcel.Client, insertedParcel.Client)
-	assert.Equal(t, parcel.CreatedAt, insertedParcel.CreatedAt)
-	assert.Equal(t, parcel.Status, insertedParcel.Status)
+	parcel.Number = lastInsertedId
+	assert.Equal(t, parcel, insertedParcel)
 	// delete
 	// удалите добавленную посылку, убедитесь в отсутствии ошибки
 	// проверьте, что посылку больше нельзя получить из БД
@@ -68,6 +67,7 @@ func TestSetAddress(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db")// настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
 
@@ -93,6 +93,7 @@ func TestSetStatus(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db")// настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
 
@@ -118,6 +119,7 @@ func TestGetByClient(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db")// настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 	store := NewParcelStore(db)
 
 	parcels := []Parcel{
@@ -158,10 +160,6 @@ func TestGetByClient(t *testing.T) {
 		// убедитесь, что значения полей полученных посылок заполнены верно
 		p, ok := parcelMap[parcel.Number] 
 		assert.True(t, ok)
-		assert.Equal(t, p.Address, parcel.Address) 
-		assert.Equal(t, p.Client, parcel.Client) 
-		assert.Equal(t, p.CreatedAt, parcel.CreatedAt) 
-		assert.Equal(t, p.Number, parcel.Number) 
-		assert.Equal(t, p.Status, parcel.Status) 
+		assert.Equal(t, p, parcel)
 	}
 }

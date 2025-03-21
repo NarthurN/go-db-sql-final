@@ -96,18 +96,10 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 func (s ParcelStore) SetAddress(number int, address string) error {
 	// реализуйте обновление адреса в таблице parcel
 	// менять адрес можно только если значение статуса registered
-	parcel, err := s.Get(number)
-	if err != nil {
-		return err
-	}
-	if parcel.Status != ParcelStatusRegistered {
-		return nil
-		//return fmt.Errorf("status is not %s", ParcelStatusRegistered)
-	}
-
-	_, err = s.db.Exec(
-		"UPDATE parcel SET address = :address WHERE number = :number",
+	_, err := s.db.Exec(
+		"UPDATE parcel SET address = :address WHERE number = :number AND status = :status",
 		sql.Named("address", address),
+		sql.Named("status", ParcelStatusRegistered),
 		sql.Named("number", number),
 	)
 
@@ -117,15 +109,11 @@ func (s ParcelStore) SetAddress(number int, address string) error {
 func (s ParcelStore) Delete(number int) error {
 	// реализуйте удаление строки из таблицы parcel
 	// удалять строку можно только если значение статуса registered
-	parcel, err := s.Get(number)
-	if err != nil {
-		return err
-	}
-	if parcel.Status != ParcelStatusRegistered {
-		return nil
-		//return fmt.Errorf("status is not %s", ParcelStatusRegistered)
-	}
-	_, err = s.db.Exec("DELETE FROM parcel WHERE number = :number", sql.Named("number", number))
+	_, err := s.db.Exec(
+		"DELETE FROM parcel WHERE number = :number AND status = :status",
+		sql.Named("status", ParcelStatusRegistered),
+		sql.Named("number", number),
+	)
 	if err != nil {
 		return err
 	}
